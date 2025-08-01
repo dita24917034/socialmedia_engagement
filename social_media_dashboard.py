@@ -3,105 +3,85 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-st.set_page_config(page_title="Engagement Dashboard")
-st.markdown("## 📊 Social Media Engagement Dashboard")
+# Set Page
+st.set_page_config(page_title="Engagement Dashboard", layout="wide")
 
 # Load data
 @st.cache_data
 def load_data():
     df = pd.read_csv("social_media_engagement1.csv")
-    df['post_time'] = pd.to_datetime(df['post_time'], errors='coerce')
-    df['hour'] = df['post_time'].dt.hour
-    df['month'] = df['post_time'].dt.to_period("M").astype(str)
-    df['post_day'] = df['post_time'].dt.day_name()
     return df
 
 df = load_data()
 
-# Sidebar filter
-platforms = df['platform'].unique().tolist()
-selected_platforms = st.sidebar.multiselect("Select Platform(s):", platforms, default=platforms)
-filtered_df = df[df['platform'].isin(selected_platforms)]
+# Sidebar: platform filter
+st.sidebar.header("Filter")
+platforms = st.sidebar.multiselect(
+    "Select Platform(s):", 
+    options=df["platform"].unique(), 
+    default=df["platform"].unique()
+)
+filtered_df = df[df["platform"].isin(platforms)]
 
-# --- Visualisasi 1 ---
+# Title
+st.markdown("<h4 style='text-align: center;'>Social Media Engagement Dashboard</h4>", unsafe_allow_html=True)
+
+# Visualization 1: Total Engagement per Platform
 st.markdown("#### Total Engagement per Platform")
-total_engagement = filtered_df.groupby("platform")[['likes', 'comments', 'shares']].sum().reset_index()
-total_melted = pd.melt(
-    total_engagement,
-    id_vars='platform',
-    value_vars=['likes', 'comments', 'shares'],
-    var_name='Engagement Type',
-    value_name='Count'
-)
-fig1, ax1 = plt.subplots(figsize=(6, 3.5))
-sns.barplot(
-    data=total_melted,
-    y='platform',
-    x='Count',
-    hue='Engagement Type',
-    palette='Set2',
-    edgecolor='black'
-)
-ax1.set_xlabel("Total", fontsize=8)
+engagement_sum = filtered_df.groupby("platform")[['likes', 'comments', 'shares']].sum().reset_index()
+engagement_melted = engagement_sum.melt(id_vars='platform', var_name='Type', value_name='Count')
+
+fig1, ax1 = plt.subplots(figsize=(5.5, 2.5))
+sns.barplot(data=engagement_melted, y='platform', x='Count', hue='Type', palette='pastel', ax=ax1)
+ax1.xaxis.grid(True, linestyle='--', linewidth=0.5, alpha=0.5)
+ax1.tick_params(labelsize=7)
+ax1.set_xlabel("")
 ax1.set_ylabel("")
-ax1.tick_params(labelsize=8)
-ax1.legend(title="", fontsize=7)
+ax1.legend(title="", fontsize=7, loc="best", frameon=False)
+sns.despine()
+fig1.tight_layout()
 st.pyplot(fig1)
 
-# --- Visualisasi 2 & 3 berdampingan ---
+# Columns: Monthly Trend + Platform Share
 col1, col2 = st.columns(2)
 
+# Visualization 2: Monthly Trend
 with col1:
-    st.markdown("#### Post Type Distribution")
-    post_type_counts = filtered_df['post_type'].value_counts()
-    fig2, ax2 = plt.subplots(figsize=(5, 3.5))
-    ax2.pie(
-        post_type_counts,
-        labels=post_type_counts.index,
-        autopct='%1.1f%%',
-        startangle=90,
-        textprops={'fontsize': 8}
-    )
+    st.markdown("#### Monthly Engagement Trend")
+    filtered_df['post_month'] = pd.to_datetime(filtered_df['post_date']).dt.to_period('M').astype(str)
+    monthly = filtered_df.groupby('post_month')[['likes', 'comments', 'shares']].sum().reset_index()
+
+    fig2, ax2 = plt.subplots(figsize=(5.5, 2.5))
+    for col in ['likes', 'comments', 'shares']:
+        ax2.plot(monthly['post_month'], monthly[col], label=col, linewidth=2)
+    ax2.set_xticks(ax2.get_xticks()[::2])
+    ax2.tick_params(labelsize=7)
+    ax2.legend(fontsize=7)
+    fig2.tight_layout()
     st.pyplot(fig2)
 
+# Visualization 3: Platform Share
 with col2:
-    st.markdown("#### Monthly Engagement Trend")
-    monthly = filtered_df.groupby("month")[['likes', 'comments', 'shares']].sum().reset_index()
-    fig3, ax3 = plt.subplots(figsize=(5, 3.5))
-    for col in ['likes', 'comments', 'shares']:
-        ax3.plot(monthly['month'], monthly[col], label=col, linewidth=2)
-    ax3.set_xlabel("Month", fontsize=8)
-    ax3.set_ylabel("Count", fontsize=8)
-    ax3.legend(fontsize=7)
-    ax3.tick_params(labelsize=7)
-    plt.xticks(rotation=45, fontsize=7)
+    st.markdown("#### Platform Share")
+    platform_share = filtered_df['platform'].value_counts()
+    fig3, ax3 = plt.subplots(figsize=(5.5, 2.5))
+    ax3.pie(platform_share, labels=platform_share.index, autopct='%1.1f%%',
+            startangle=140, colors=sns.color_palette("pastel"))
+    ax3.set_title("", fontsize=10)
     st.pyplot(fig3)
 
-# --- Visualisasi 4: Boxplot Sentiment ---
-st.markdown("#### Engagement by Sentiment Score")
-fig4, ax4 = plt.subplots(1, 3, figsize=(9, 3))
-sns.boxplot(data=filtered_df, x='sentiment_score', y='likes', ax=ax4[0])
-ax4[0].set_title("Likes", fontsize=9)
-sns.boxplot(data=filtered_df, x='sentiment_score', y='comments', ax=ax4[1])
-ax4[1].set_title("Comments", fontsize=9)
-sns.boxplot(data=filtered_df, x='sentiment_score', y='shares', ax=ax4[2])
-ax4[2].set_title("Shares", fontsize=9)
-for axis in ax4:
-    axis.tick_params(labelsize=7)
-    axis.set_xlabel("")
-    axis.set_ylabel("")
-st.pyplot(fig4)
-
-# --- Visualisasi 5: Heatmap Day vs Hour ---
+# Visualization 4: Heatmap
 st.markdown("#### Post Frequency: Day vs Hour")
-heat_data = filtered_df.groupby(['post_day', 'hour']).size().unstack().fillna(0)
-fig5, ax5 = plt.subplots(figsize=(7, 3.5))
-sns.heatmap(heat_data, cmap="YlGnBu", annot=True, fmt=".0f", ax=ax5, cbar=False, annot_kws={"size": 7})
-ax5.set_xlabel("Hour", fontsize=8)
-ax5.set_ylabel("Day", fontsize=8)
-plt.xticks(fontsize=7)
-plt.yticks(fontsize=7)
-st.pyplot(fig5)
+filtered_df['post_hour'] = pd.to_datetime(filtered_df['post_time']).dt.hour
+day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+heat_data = pd.crosstab(filtered_df['post_day'], filtered_df['post_hour']).reindex(day_order)
+
+fig4, ax4 = plt.subplots(figsize=(6, 3))
+sns.heatmap(heat_data, cmap="Blues", linewidths=0.3, annot=True, fmt='d', cbar=False)
+ax4.set_xlabel("Hour", fontsize=8)
+ax4.set_ylabel("Day", fontsize=8)
+ax4.tick_params(labelsize=7)
+st.pyplot(fig4)
 
 # Visualization 5: Comment Distribution by Day
 st.markdown("#### Comment Distribution by Day")
