@@ -5,7 +5,7 @@ import seaborn as sns
 from datetime import datetime
 
 st.set_page_config(page_title="Engagement Dashboard")
-st.title("📊 Social Media Engagement Dashboard")
+st.markdown("## 📊 Social Media Engagement Dashboard")
 
 # Load data
 @st.cache_data
@@ -26,16 +26,23 @@ filtered_df = df[df['platform'].isin(selected_platforms)]
 # Layout grid: gunakan kolom 2 untuk visualisasi berdampingan
 col1, col2 = st.columns(2)
 
-# Total Engagement per Platform (Bar Chart)
+# Clustered Bar Chart: Total Engagement per Platform
 with col1:
     st.markdown("### Total Engagement per Platform")
     total_engagement = filtered_df.groupby("platform")[['likes', 'comments', 'shares']].sum().reset_index()
-    fig1, ax1 = plt.subplots(figsize=(4, 3))
-    total_engagement.plot(kind='bar', x='platform', ax=ax1, width=0.6)
+
+    fig1, ax1 = plt.subplots(figsize=(5, 3.5))
+    bar_width = 0.25
+    x = range(len(total_engagement))
+
+    ax1.bar([p - bar_width for p in x], total_engagement['likes'], width=bar_width, label='Likes')
+    ax1.bar(x, total_engagement['comments'], width=bar_width, label='Comments')
+    ax1.bar([p + bar_width for p in x], total_engagement['shares'], width=bar_width, label='Shares')
+
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(total_engagement['platform'], fontsize=8)
+    ax1.legend(fontsize=7)
     ax1.set_ylabel("Total Count")
-    ax1.set_title("")
-    ax1.legend(loc="upper right", fontsize=6)
-    plt.xticks(rotation=0, fontsize=8)
     plt.yticks(fontsize=8)
     st.pyplot(fig1)
 
