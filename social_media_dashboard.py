@@ -22,7 +22,7 @@ platforms = df['platform'].unique().tolist()
 selected_platforms = st.sidebar.multiselect("Select Platform(s):", platforms, default=platforms)
 filtered_df = df[df['platform'].isin(selected_platforms)]
 
-# --- Visualisasi 1: Clustered Horizontal Bar Chart ---
+# --- Visualisasi 1: Ringkas Clustered Horizontal Bar Chart ---
 st.markdown("### Total Engagement per Platform")
 total_engagement = filtered_df.groupby("platform")[['likes', 'comments', 'shares']].sum().reset_index()
 total_melted = pd.melt(
@@ -32,7 +32,7 @@ total_melted = pd.melt(
     var_name='Engagement Type',
     value_name='Count'
 )
-fig1, ax1 = plt.subplots(figsize=(6, 3))  # Ukuran diperbesar
+fig1, ax1 = plt.subplots(figsize=(6, 3.5))  # Ukuran lebih ringkas
 sns.barplot(
     data=total_melted,
     y='platform',
@@ -43,20 +43,20 @@ sns.barplot(
 )
 ax1.set_xlabel("Total", fontsize=8)
 ax1.set_ylabel("")
-ax1.tick_params(labelsize=7)
+ax1.tick_params(labelsize=8)
 ax1.legend(title="", fontsize=7)
 st.pyplot(fig1)
 
-# --- Visualisasi 2: Pie Chart ---
+# --- Visualisasi 2: Ringkas Pie Chart ---
 st.markdown("### Post Type Distribution")
 post_type_counts = filtered_df['post_type'].value_counts()
-fig2, ax2 = plt.subplots(figsize=(4, 4))  # Ukuran diperbesar
+fig2, ax2 = plt.subplots(figsize=(5, 5))  # Ukuran lebih ringkas
 ax2.pie(
     post_type_counts,
     labels=post_type_counts.index,
     autopct='%1.1f%%',
     startangle=90,
-    textprops={'fontsize': 7}
+    textprops={'fontsize': 8}
 )
 ax2.set_title("")
 st.pyplot(fig2)
@@ -64,13 +64,13 @@ st.pyplot(fig2)
 # --- Visualisasi 3: Monthly Trend ---
 st.markdown("### Monthly Engagement Trend")
 monthly = filtered_df.groupby("month")[['likes', 'comments', 'shares']].sum().reset_index()
-fig3, ax3 = plt.subplots(figsize=(4, 2.5))
+fig3, ax3 = plt.subplots(figsize=(6.5, 3.2))
 for col in ['likes', 'comments', 'shares']:
     ax3.plot(monthly['month'], monthly[col], label=col, linewidth=2)
-ax3.set_xlabel("Month", fontsize=6)
-ax3.set_ylabel("Count", fontsize=6)
+ax3.set_xlabel("Month", fontsize=9)
+ax3.set_ylabel("Count", fontsize=9)
 ax3.legend(fontsize=7)
-plt.xticks(rotation=45, fontsize=5)
+plt.xticks(rotation=45, fontsize=7)
 plt.yticks(fontsize=7)
 st.pyplot(fig3)
 
