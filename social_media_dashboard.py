@@ -102,3 +102,11 @@ ax5.set_ylabel("Day", fontsize=8)
 plt.xticks(fontsize=7)
 plt.yticks(fontsize=7)
 st.pyplot(fig5)
+
+#---
+fig, ax = plt.subplots(figsize=(6, 3))
+sns.stripplot(data=filtered_df, x='post_day', y='comments', order=day_order, jitter=True, size=3, palette='Set2')
+ax.set_title("Comment Distribution by Day", fontsize=10)
+ax.set_xlabel("")
+ax.set_ylabel("Comments", fontsize=8)
+st.pyplot(fig)
