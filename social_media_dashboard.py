@@ -22,64 +22,59 @@ platforms = df['platform'].unique().tolist()
 selected_platforms = st.sidebar.multiselect("Select Platform(s):", platforms, default=platforms)
 filtered_df = df[df['platform'].isin(selected_platforms)]
 
-# Layout grid
-col1, col2 = st.columns(2)
+# --- Visualisasi 1: Clustered Horizontal Bar Chart ---
+st.markdown("### Total Engagement per Platform")
+total_engagement = filtered_df.groupby("platform")[['likes', 'comments', 'shares']].sum().reset_index()
+total_melted = pd.melt(
+    total_engagement,
+    id_vars='platform',
+    value_vars=['likes', 'comments', 'shares'],
+    var_name='Engagement Type',
+    value_name='Count'
+)
+fig1, ax1 = plt.subplots(figsize=(8, 5))  # Ukuran diperbesar
+sns.barplot(
+    data=total_melted,
+    y='platform',
+    x='Count',
+    hue='Engagement Type',
+    palette='Set2',
+    edgecolor='black'
+)
+ax1.set_xlabel("Total", fontsize=9)
+ax1.set_ylabel("")
+ax1.tick_params(labelsize=8)
+ax1.legend(title="", fontsize=8)
+st.pyplot(fig1)
 
-# Visualisasi 1: Clustered Horizontal Bar Chart
-with col1:
-    st.markdown("### Total Engagement per Platform")
-    total_engagement = filtered_df.groupby("platform")[['likes', 'comments', 'shares']].sum().reset_index()
-    total_melted = pd.melt(
-        total_engagement,
-        id_vars='platform',
-        value_vars=['likes', 'comments', 'shares'],
-        var_name='Engagement Type',
-        value_name='Count'
-    )
-    fig1, ax1 = plt.subplots(figsize=(8, 4.2))
-    sns.barplot(
-        data=total_melted,
-        y='platform',
-        x='Count',
-        hue='Engagement Type',
-        palette='Set2',
-        edgecolor='black'
-    )
-    ax1.set_xlabel("Total", fontsize=8)
-    ax1.set_ylabel("")
-    ax1.tick_params(labelsize=8)
-    ax1.legend(title="", fontsize=7)
-    st.pyplot(fig1)
+# --- Visualisasi 2: Pie Chart ---
+st.markdown("### Post Type Distribution")
+post_type_counts = filtered_df['post_type'].value_counts()
+fig2, ax2 = plt.subplots(figsize=(6, 6))  # Ukuran diperbesar
+ax2.pie(
+    post_type_counts,
+    labels=post_type_counts.index,
+    autopct='%1.1f%%',
+    startangle=90,
+    textprops={'fontsize': 8}
+)
+ax2.set_title("")
+st.pyplot(fig2)
 
-# Visualisasi 2: Pie Chart
-with col2:
-    st.markdown("### Post Type Distribution")
-    post_type_counts = filtered_df['post_type'].value_counts()
-    fig2, ax2 = plt.subplots(figsize=(3, 3))
-    ax2.pie(
-        post_type_counts,
-        labels=post_type_counts.index,
-        autopct='%1.1f%%',
-        startangle=90,
-        textprops={'fontsize': 7}
-    )
-    ax2.set_title("")
-    st.pyplot(fig2)
-
-# Visualisasi 3: Monthly Trend
+# --- Visualisasi 3: Monthly Trend ---
 st.markdown("### Monthly Engagement Trend")
 monthly = filtered_df.groupby("month")[['likes', 'comments', 'shares']].sum().reset_index()
-fig3, ax3 = plt.subplots(figsize=(6, 2.8))
+fig3, ax3 = plt.subplots(figsize=(6.5, 3.2))
 for col in ['likes', 'comments', 'shares']:
     ax3.plot(monthly['month'], monthly[col], label=col, linewidth=2)
-ax3.set_xlabel("Month", fontsize=7)
-ax3.set_ylabel("Count", fontsize=7)
+ax3.set_xlabel("Month", fontsize=9)
+ax3.set_ylabel("Count", fontsize=9)
 ax3.legend(fontsize=7)
 plt.xticks(rotation=45, fontsize=7)
 plt.yticks(fontsize=7)
 st.pyplot(fig3)
 
-# Visualisasi 4: Box Plot by Sentiment
+# --- Visualisasi 4: Box Plot by Sentiment ---
 st.markdown("### Engagement by Sentiment")
 fig4, ax4 = plt.subplots(1, 3, figsize=(9, 3))
 sns.boxplot(data=filtered_df, x='sentiment_score', y='likes', ax=ax4[0])
@@ -94,7 +89,7 @@ for axis in ax4:
     axis.set_ylabel("")
 st.pyplot(fig4)
 
-# Visualisasi 5: Heatmap Day vs Hour
+# --- Visualisasi 5: Heatmap Day vs Hour ---
 st.markdown("### Post Frequency: Day vs Hour")
 heat_data = filtered_df.groupby(['post_day', 'hour']).size().unstack().fillna(0)
 fig5, ax5 = plt.subplots(figsize=(7, 3.5))
