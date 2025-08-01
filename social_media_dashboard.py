@@ -39,7 +39,7 @@ bar_height = 0.35
 platform_count = len(total_melted['platform'].unique())
 fig_height = max(1.8, platform_count * bar_height)
 
-fig1, ax1 = plt.subplots(figsize=(5.5, 4))#fig_height
+fig1, ax1 = plt.subplots(figsize=(5.5, 2.8))#fig_height
 sns.barplot(
     data=total_melted,
     y='platform',
