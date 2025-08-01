@@ -23,7 +23,7 @@ platforms = df['platform'].unique().tolist()
 selected_platforms = st.sidebar.multiselect("Select Platform(s):", platforms, default=platforms)
 filtered_df = df[df['platform'].isin(selected_platforms)]
 
-# --- Visualisasi 1 ---
+# --- Visualisasi 1: Total Engagement per Platform (gaya dashboard) ---
 st.markdown("#### Total Engagement per Platform")
 total_engagement = filtered_df.groupby("platform")[['likes', 'comments', 'shares']].sum().reset_index()
 total_melted = pd.melt(
@@ -33,19 +33,27 @@ total_melted = pd.melt(
     var_name='Engagement Type',
     value_name='Count'
 )
-fig1, ax1 = plt.subplots(figsize=(5, 3))
+
+# Ukuran menyesuaikan jumlah platform
+bar_height = 0.35
+platform_count = len(total_melted['platform'].unique())
+fig_height = max(1.8, platform_count * bar_height)
+
+fig1, ax1 = plt.subplots(figsize=(5.5, fig_height))
 sns.barplot(
     data=total_melted,
     y='platform',
     x='Count',
     hue='Engagement Type',
-    palette='Set2',
-    edgecolor='black'
+    palette='pastel',
+    edgecolor='gray'
 )
-ax1.set_xlabel("Total", fontsize=8)
+ax1.set_xlabel("", fontsize=8)
 ax1.set_ylabel("")
-ax1.tick_params(labelsize=8)
-ax1.legend(title="", fontsize=7)
+ax1.tick_params(labelsize=7)
+ax1.legend(title="", fontsize=7, loc='best', frameon=False)
+sns.despine(left=True, bottom=True)
+fig1.tight_layout()
 st.pyplot(fig1)
 
 # --- Visualisasi 2 & 3 berdampingan ---
