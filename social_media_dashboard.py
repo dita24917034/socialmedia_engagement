@@ -33,7 +33,7 @@ total_melted = pd.melt(
     var_name='Engagement Type',
     value_name='Count'
 )
-fig1, ax1 = plt.subplots(figsize=(6, 3.5))
+fig1, ax1 = plt.subplots(figsize=(5.2, 2.8))  # Ukuran lebih kecil
 sns.barplot(
     data=total_melted,
     y='platform',
@@ -44,8 +44,8 @@ sns.barplot(
 )
 ax1.set_xlabel("Total", fontsize=8)
 ax1.set_ylabel("")
-ax1.tick_params(labelsize=8)
-ax1.legend(title="", fontsize=7)
+ax1.tick_params(labelsize=7)
+ax1.legend(title="", fontsize=6, loc='lower right', frameon=False)
 st.pyplot(fig1)
 
 # --- Visualisasi 2 & 3 berdampingan ---
