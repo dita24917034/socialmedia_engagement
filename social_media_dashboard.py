@@ -33,7 +33,7 @@ total_melted = pd.melt(
     var_name='Engagement Type',
     value_name='Count'
 )
-fig1, ax1 = plt.subplots(figsize=(6, 3.5))
+fig1, ax1 = plt.subplots(figsize=(5, 3))
 sns.barplot(
     data=total_melted,
     y='platform',
