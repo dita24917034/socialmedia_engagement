@@ -36,7 +36,7 @@ with col1:
         var_name='Engagement Type',
         value_name='Count'
     )
-    fig1, ax1 = plt.subplots(figsize=(6.5, 3.8))
+    fig1, ax1 = plt.subplots(figsize=(8, 4.2))
     sns.barplot(
         data=total_melted,
         y='platform',
@@ -55,7 +55,7 @@ with col1:
 with col2:
     st.markdown("### Post Type Distribution")
     post_type_counts = filtered_df['post_type'].value_counts()
-    fig2, ax2 = plt.subplots(figsize=(4, 4))
+    fig2, ax2 = plt.subplots(figsize=(3, 3))
     ax2.pie(
         post_type_counts,
         labels=post_type_counts.index,
@@ -69,11 +69,11 @@ with col2:
 # Visualisasi 3: Monthly Trend
 st.markdown("### Monthly Engagement Trend")
 monthly = filtered_df.groupby("month")[['likes', 'comments', 'shares']].sum().reset_index()
-fig3, ax3 = plt.subplots(figsize=(6.5, 3.2))
+fig3, ax3 = plt.subplots(figsize=(6, 2.8))
 for col in ['likes', 'comments', 'shares']:
     ax3.plot(monthly['month'], monthly[col], label=col, linewidth=2)
-ax3.set_xlabel("Month", fontsize=9)
-ax3.set_ylabel("Count", fontsize=9)
+ax3.set_xlabel("Month", fontsize=7)
+ax3.set_ylabel("Count", fontsize=7)
 ax3.legend(fontsize=7)
 plt.xticks(rotation=45, fontsize=7)
 plt.yticks(fontsize=7)
