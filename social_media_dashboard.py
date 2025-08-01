@@ -103,10 +103,13 @@ plt.xticks(fontsize=7)
 plt.yticks(fontsize=7)
 st.pyplot(fig5)
 
-#---
-fig, ax = plt.subplots(figsize=(6, 3))
-sns.stripplot(data=filtered_df, x='post_day', y='comments', order=day_order, jitter=True, size=3, palette='Set2')
-ax.set_title("Comment Distribution by Day", fontsize=10)
-ax.set_xlabel("")
-ax.set_ylabel("Comments", fontsize=8)
-st.pyplot(fig)
+# Visualization 5: Comment Distribution by Day
+st.markdown("#### Comment Distribution by Day")
+fig5, ax5 = plt.subplots(figsize=(6, 3))
+sns.stripplot(data=filtered_df, x='post_day', y='comments', order=day_order,
+              jitter=True, size=3, palette='Set2', ax=ax5)
+ax5.set_xlabel("")
+ax5.set_ylabel("Comments", fontsize=8)
+ax5.tick_params(labelsize=7)
+fig5.tight_layout()
+st.pyplot(fig5)
