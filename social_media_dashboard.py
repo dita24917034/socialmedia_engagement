@@ -23,38 +23,51 @@ platforms = df['platform'].unique().tolist()
 selected_platforms = st.sidebar.multiselect("Select Platform(s):", platforms, default=platforms)
 filtered_df = df[df['platform'].isin(selected_platforms)]
 
-# --- Visualisasi 1 dan 3 berdampingan ---
+# --- Visualisasi 1 ---
+st.markdown("#### Total Engagement per Platform")
+total_engagement = filtered_df.groupby("platform")[['likes', 'comments', 'shares']].sum().reset_index()
+total_melted = pd.melt(
+    total_engagement,
+    id_vars='platform',
+    value_vars=['likes', 'comments', 'shares'],
+    var_name='Engagement Type',
+    value_name='Count'
+)
+fig1, ax1 = plt.subplots(figsize=(6, 3.5))
+sns.barplot(
+    data=total_melted,
+    y='platform',
+    x='Count',
+    hue='Engagement Type',
+    palette='Set2',
+    edgecolor='black'
+)
+ax1.set_xlabel("Total", fontsize=8)
+ax1.set_ylabel("")
+ax1.tick_params(labelsize=8)
+ax1.legend(title="", fontsize=7)
+st.pyplot(fig1)
+
+# --- Visualisasi 2 & 3 berdampingan ---
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown("#### Total Engagement per Platform")
-    total_engagement = filtered_df.groupby("platform")[['likes', 'comments', 'shares']].sum().reset_index()
-    total_melted = pd.melt(
-        total_engagement,
-        id_vars='platform',
-        value_vars=['likes', 'comments', 'shares'],
-        var_name='Engagement Type',
-        value_name='Count'
+    st.markdown("#### Post Type Distribution")
+    post_type_counts = filtered_df['post_type'].value_counts()
+    fig2, ax2 = plt.subplots(figsize=(5, 3.5))
+    ax2.pie(
+        post_type_counts,
+        labels=post_type_counts.index,
+        autopct='%1.1f%%',
+        startangle=90,
+        textprops={'fontsize': 8}
     )
-    fig1, ax1 = plt.subplots(figsize=(5, 3))
-    sns.barplot(
-        data=total_melted,
-        y='platform',
-        x='Count',
-        hue='Engagement Type',
-        palette='Set2',
-        edgecolor='black'
-    )
-    ax1.set_xlabel("Total", fontsize=8)
-    ax1.set_ylabel("")
-    ax1.tick_params(labelsize=8)
-    ax1.legend(title="", fontsize=7)
-    st.pyplot(fig1)
+    st.pyplot(fig2)
 
 with col2:
     st.markdown("#### Monthly Engagement Trend")
     monthly = filtered_df.groupby("month")[['likes', 'comments', 'shares']].sum().reset_index()
-    fig3, ax3 = plt.subplots(figsize=(5, 3))
+    fig3, ax3 = plt.subplots(figsize=(5, 3.5))
     for col in ['likes', 'comments', 'shares']:
         ax3.plot(monthly['month'], monthly[col], label=col, linewidth=2)
     ax3.set_xlabel("Month", fontsize=8)
@@ -64,20 +77,7 @@ with col2:
     plt.xticks(rotation=45, fontsize=7)
     st.pyplot(fig3)
 
-# --- Visualisasi 2: Pie chart ---
-st.markdown("#### Post Type Distribution")
-post_type_counts = filtered_df['post_type'].value_counts()
-fig2, ax2 = plt.subplots(figsize=(5, 5))
-ax2.pie(
-    post_type_counts,
-    labels=post_type_counts.index,
-    autopct='%1.1f%%',
-    startangle=90,
-    textprops={'fontsize': 8}
-)
-st.pyplot(fig2)
-
-# --- Visualisasi 4: Boxplot by Sentiment ---
+# --- Visualisasi 4: Boxplot Sentiment ---
 st.markdown("#### Engagement by Sentiment Score")
 fig4, ax4 = plt.subplots(1, 3, figsize=(9, 3))
 sns.boxplot(data=filtered_df, x='sentiment_score', y='likes', ax=ax4[0])
