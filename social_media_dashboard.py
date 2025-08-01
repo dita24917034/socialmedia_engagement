@@ -23,7 +23,7 @@ platforms = df['platform'].unique().tolist()
 selected_platforms = st.sidebar.multiselect("Select Platform(s):", platforms, default=platforms)
 filtered_df = df[df['platform'].isin(selected_platforms)]
 
-# --- Visualisasi 1: Total Engagement per Platform (gaya dashboard) ---
+# --- Visualisasi 1: Total Engagement per Platform (dengan garis bantu) ---
 st.markdown("#### Total Engagement per Platform")
 total_engagement = filtered_df.groupby("platform")[['likes', 'comments', 'shares']].sum().reset_index()
 total_melted = pd.melt(
@@ -34,20 +34,27 @@ total_melted = pd.melt(
     value_name='Count'
 )
 
-# Ukuran menyesuaikan jumlah platform
+# Tentukan ukuran visualisasi berdasarkan jumlah platform
 bar_height = 0.35
 platform_count = len(total_melted['platform'].unique())
 fig_height = max(1.8, platform_count * bar_height)
 
-fig1, ax1 = plt.subplots(figsize=(5.5, 2.8))#fig_height
+fig1, ax1 = plt.subplots(figsize=(5.5, fig_height))
 sns.barplot(
     data=total_melted,
     y='platform',
     x='Count',
     hue='Engagement Type',
     palette='pastel',
-    edgecolor='gray'
+    edgecolor='gray',
+    ax=ax1
 )
+
+# Tambahan: Garis bantu horizontal (gridline)
+ax1.xaxis.grid(True, linestyle='--', linewidth=0.5, color='gray', alpha=0.5)
+ax1.set_axisbelow(True)  # Pastikan grid di belakang bar
+
+# Tampilan bersih dan profesional
 ax1.set_xlabel("", fontsize=8)
 ax1.set_ylabel("")
 ax1.tick_params(labelsize=7)
