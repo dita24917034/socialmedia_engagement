@@ -26,22 +26,22 @@ filtered_df = df[df['platform'].isin(selected_platforms)]
 # Layout grid: gunakan kolom 2 untuk visualisasi berdampingan
 col1, col2 = st.columns(2)
 
-# 1. Bar Chart: Rata-rata engagement per platform
+# Total Engagement per Platform (Bar Chart)
 with col1:
-    st.markdown("### 1. Avg Engagement per Platform")
-    avg_engagement = filtered_df.groupby("platform")[['likes', 'comments', 'shares']].mean().reset_index()
+    st.markdown("### Total Engagement per Platform")
+    total_engagement = filtered_df.groupby("platform")[['likes', 'comments', 'shares']].sum().reset_index()
     fig1, ax1 = plt.subplots(figsize=(4, 3))
-    avg_engagement.plot(kind='bar', x='platform', ax=ax1, width=0.6)
-    ax1.set_ylabel("Avg Count")
+    total_engagement.plot(kind='bar', x='platform', ax=ax1, width=0.6)
+    ax1.set_ylabel("Total Count")
     ax1.set_title("")
     ax1.legend(loc="upper right", fontsize=6)
     plt.xticks(rotation=0, fontsize=8)
     plt.yticks(fontsize=8)
     st.pyplot(fig1)
 
-# 2. Pie Chart: Distribusi post_type
+# Post Type Distribution (Pie Chart)
 with col2:
-    st.markdown("### 2. Post Type Distribution")
+    st.markdown("### Post Type Distribution")
     post_type_counts = filtered_df['post_type'].value_counts()
     fig2, ax2 = plt.subplots(figsize=(3.8, 3.8))
     ax2.pie(
@@ -54,8 +54,8 @@ with col2:
     ax2.set_title("")
     st.pyplot(fig2)
 
-# 3. Line Chart: Total Engagement Over Time (Monthly)
-st.markdown("### 3. Monthly Engagement Trend")
+# Monthly Engagement Trend (Line Chart)
+st.markdown("### Monthly Engagement Trend")
 engagement_over_time = filtered_df.groupby("month")[['likes', 'comments', 'shares']].sum().reset_index()
 fig3, ax3 = plt.subplots(figsize=(6.5, 3.2))
 for col in ['likes', 'comments', 'shares']:
@@ -67,8 +67,8 @@ plt.xticks(rotation=45, fontsize=7)
 plt.yticks(fontsize=7)
 st.pyplot(fig3)
 
-# 4. Box Plot: Engagement by Sentiment
-st.markdown("### 4. Engagement by Sentiment")
+# Engagement by Sentiment (Box Plot)
+st.markdown("### Engagement by Sentiment")
 fig4, ax4 = plt.subplots(1, 3, figsize=(9, 3))
 sns.boxplot(data=filtered_df, x='sentiment_score', y='likes', ax=ax4[0])
 ax4[0].set_title("Likes", fontsize=9)
@@ -82,8 +82,8 @@ for axis in ax4:
     axis.set_ylabel("")
 st.pyplot(fig4)
 
-# 5. Heatmap: Engagement by Day and Hour
-st.markdown("### 5. Post Frequency: Day vs Hour")
+# Post Frequency: Day vs Hour (Heatmap)
+st.markdown("### Post Frequency: Day vs Hour")
 heat_data = filtered_df.groupby(['post_day', 'hour']).size().unstack().fillna(0)
 fig5, ax5 = plt.subplots(figsize=(7, 3.5))
 sns.heatmap(heat_data, cmap="YlGnBu", annot=True, fmt=".0f", ax=ax5, cbar=False, annot_kws={"size": 7})
